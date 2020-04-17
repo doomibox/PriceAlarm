@@ -9,6 +9,7 @@ import org.quartz.JobExecutionException;
 public class SendCrawlMessageJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        log.info("Sending Crawl Message to SQS");
+        log.info("Sending Crawl Message to SQS: {}", jobExecutionContext.getJobDetail().getJobDataMap().getString("url"));
+        // TODO: Send Message to SQS
     }
 }
