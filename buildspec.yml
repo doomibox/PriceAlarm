@@ -5,6 +5,7 @@ phases:
     runtime-versions:
       java: corretto11
       docker: 18
+      nodejs: 12
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
@@ -17,11 +18,17 @@ phases:
       - echo Building the Docker image...
       - docker build -t $IMAGE_REPO_NAME:LATEST .
       - docker tag $IMAGE_REPO_NAME:LATEST $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:LATEST
+      - echo Installing node modules
+      - cd Crawler
+      - npm install
+      - zip -r function.zip ./
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:LATEST
+      - echo Updating Lambda function
+      - aws lambda update-function-code --function-name crawler --zip-file fileb://function.zip
 artifacts:
   files:
     - target/pricealarm-0.0.1-SNAPSHOT.jar
